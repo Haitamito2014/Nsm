@@ -609,6 +609,7 @@ function renderContacts() {
       <div class="r-top"><span style="font-size:22px">🔒</span><span><b>Protect your account.</b> Turn on security codes so nobody can sign in with just your password.</span></div>
       <div class="row"><button class="btn" data-sec="on">Turn on</button><button class="btn ghost" data-sec="later">Not now</button></div>
     </div>` : "";
+  html += installBanner();
   html += requests.filter(r => !contacts.has(r.id)).map(r => `
     <div class="req">
       <div class="r-top">${dp(r.pic, "online", "sm")}<span><b>${esc(r.name)}</b> (${esc(r.email)}) added you to their contact list.</span></div>
@@ -628,6 +629,26 @@ function renderContacts() {
   else if (q && !ids.length) html += `<p style="color:var(--muted);padding:12px 8px;margin:0">No contact matches “${esc(q)}”.</p>`;
   $("contacts").innerHTML = html;
 }
+
+/* Install as an app on the phone or computer */
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function installBanner() {
+  if (isStandalone() || local("no-install") === "1") return "";
+  if (window.nsmInstallPrompt) return `
+    <div class="req">
+      <div class="r-top"><span style="font-size:22px">📲</span><span><b>Install NSM</b> on this device to open it like an app, with its own icon.</span></div>
+      <div class="row"><button class="btn" data-install="go">Install</button><button class="btn ghost" data-install="later">Not now</button></div>
+    </div>`;
+  if (isIOS()) return `
+    <div class="req">
+      <div class="r-top"><span style="font-size:22px">📲</span><span><b>Install NSM on your iPhone:</b> in Safari, tap the <b>Share</b> button (the square with an arrow pointing up), then <b>Add to Home Screen</b>.</span></div>
+      <div class="row"><button class="btn ghost" data-install="later">Got it</button></div>
+    </div>`;
+  return "";
+}
+addEventListener("nsm-installable", () => renderSoon());
+addEventListener("appinstalled", () => { window.nsmInstallPrompt = null; renderSoon(); toast(null, "NSM is installed. You'll find it with your apps."); });
 
 /* =============== Render: tabs & conversation =============== */
 function renderTabs() {
@@ -1218,6 +1239,14 @@ $("search").addEventListener("input", renderContacts);
 document.querySelectorAll("[data-sort]").forEach(b => b.addEventListener("click", () => { sort = b.dataset.sort; local("sort", sort); renderMe(); renderContacts(); }));
 
 $("contacts").addEventListener("click", async e => {
+  const inst = e.target.closest("[data-install]");
+  if (inst) {
+    if (inst.dataset.install === "go" && window.nsmInstallPrompt) {
+      const p = window.nsmInstallPrompt; window.nsmInstallPrompt = null;
+      p.prompt(); try { await p.userChoice; } catch {}
+    } else local("no-install", "1");
+    renderContacts(); return;
+  }
   const sec = e.target.closest("[data-sec]");
   if (sec) { if (sec.dataset.sec === "on") showEnroll(auth.currentUser); else { local("no2fa-" + uid, "1"); renderContacts(); } return; }
   const acc = e.target.closest("[data-accept]"), ign = e.target.closest("[data-ignore]");
