@@ -66,7 +66,7 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
   display: grid; place-items: center; background: linear-gradient(145deg, var(--g1, #1f6f8b), var(--g2, #4fb3d3));
   box-shadow: 0 0 0 2px var(--panel), 0 0 0 4.5px var(--dot, var(--offline)); margin: 4px;
 }
-.dp img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+.dp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
 .dp-emo { font-size: calc(var(--s) * .56); line-height: 1; }
 .dp.xs { --s: 24px; box-shadow: 0 0 0 1.5px var(--panel), 0 0 0 3px var(--dot, var(--offline)); margin: 3px; }
 .dp.sm { --s: 36px; }
