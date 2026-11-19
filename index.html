@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NSM Messenger</title>
+<meta name="description" content="NSM Messenger: create an account, add your friends and chat with Wizz, winks, emoticons and more.">
+<meta name="theme-color" content="#1f6f8b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='6' width='26' height='20' rx='8' fill='%231f6f8b'/%3E%3Cpath d='M8 26 L6 33 L14 26 Z' fill='%231f6f8b'/%3E%3Crect x='14' y='14' width='24' height='18' rx='8' fill='%23f2a541'/%3E%3Cpath d='M32 32 L35 38 L26 32 Z' fill='%23f2a541'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="nsm-logo" viewBox="0 0 40 40">
+    <rect x="2" y="6" width="26" height="20" rx="8" fill="#1f6f8b"/>
+    <path d="M8 26 L6 33 L14 26 Z" fill="#1f6f8b"/>
+    <rect x="14" y="14" width="24" height="18" rx="8" fill="#f2a541"/>
+    <path d="M32 32 L35 38 L26 32 Z" fill="#f2a541"/>
+  </symbol>
+</svg>
+
+<div class="loading" id="loading">Connecting to NSM…</div>
+
+<!-- ============ Setup needed (owner only) ============ -->
+<section class="setup" id="setup" hidden>
+  <div class="signin-card">
+    <div class="logo"><svg><use href="#nsm-logo"/></svg><div><b>NSM</b><small>Messenger</small></div></div>
+    <h1>NSM isn't connected to a database yet</h1>
+    <p>The site owner needs to connect a free Firebase project before people can create accounts:</p>
+    <ol>
+      <li>Create a project at <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a>.</li>
+      <li>Turn on <b>Authentication › Email/Password</b>.</li>
+      <li>Create a <b>Firestore Database</b> and paste the rules from <code>firestore.rules</code>.</li>
+      <li>Add a <b>Web app</b> and paste its config into <code>firebase-config.js</code>.</li>
+    </ol>
+    <p>Full steps are in <code>README.md</code>. Meanwhile you can try the <a href="demo.html">offline demo</a>.</p>
+  </div>
+</section>
+
+<!-- ============ Sign in / create account ============ -->
+<section class="signin" id="auth" hidden>
+  <div class="signin-card">
+    <div class="logo"><svg><use href="#nsm-logo"/></svg><div><b>NSM</b><small>Messenger</small></div></div>
+    <div class="auth-tabs" role="tablist">
+      <button role="tab" id="tabIn" aria-selected="true">Sign in</button>
+      <button role="tab" id="tabUp" aria-selected="false">Create account</button>
+    </div>
+
+    <form id="formIn" class="signin-card" style="border:0;box-shadow:none;padding:0;gap:14px" novalidate>
+      <div class="field"><label for="inEmail">E-mail</label><input id="inEmail" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="inPass">Password</label><input id="inPass" type="password" autocomplete="current-password" required></div>
+      <div class="field"><label for="inStatus">Sign in as</label><select id="inStatus"></select></div>
+      <p class="form-msg" id="inMsg" hidden></p>
+      <button class="btn" type="submit" id="inBtn">Sign in</button>
+      <button class="linkbtn" type="button" id="forgotBtn">Forgot your password?</button>
+    </form>
+
+    <form id="formUp" class="signin-card" style="border:0;box-shadow:none;padding:0;gap:14px" novalidate hidden>
+      <div class="field"><label for="upName">Display name</label><input id="upName" maxlength="32" autocomplete="nickname" required placeholder="What your contacts will see"></div>
+      <div class="field"><label for="upEmail">E-mail</label><input id="upEmail" type="email" autocomplete="email" required placeholder="Friends add you with this"></div>
+      <div class="field"><label for="upPass">Password</label><input id="upPass" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters"></div>
+      <p class="form-msg" id="upMsg" hidden></p>
+      <button class="btn" type="submit" id="upBtn">Create my account</button>
+    </form>
+
+    <form id="formCode" class="signin-card" style="border:0;box-shadow:none;padding:0;gap:14px" novalidate hidden>
+      <div>
+        <h1>Enter your security code</h1>
+        <p>Open your authenticator app and type the 6-digit code shown for <b>NSM Messenger</b>.</p>
+      </div>
+      <div class="field"><label for="codeIn">6-digit code</label><input id="codeIn" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="123456"></div>
+      <p class="form-msg" id="codeMsg" hidden></p>
+      <button class="btn" type="submit" id="codeBtn">Verify and sign in</button>
+      <button class="linkbtn" type="button" id="codeCancel">Cancel</button>
+    </form>
+
+    <p class="demo-note" id="authNote">Your contacts find you by your e-mail address, and people in your contact list can see it. Want to look around first? Try the <a href="demo.html">offline demo</a>.</p>
+  </div>
+</section>
+
+<!-- ============ Step 1 after sign-up: confirm e-mail ============ -->
+<section class="signin" id="verify" hidden>
+  <div class="signin-card">
+    <div class="logo"><svg><use href="#nsm-logo"/></svg><div><b>NSM</b><small>Messenger</small></div></div>
+    <div>
+      <h1>Confirm your e-mail address</h1>
+      <p>We sent a confirmation link to <b id="verifyEmail"></b>. Open it, then come back here. Check your spam folder if you don't see it.</p>
+    </div>
+    <p class="form-msg" id="verifyMsg" hidden></p>
+    <button class="btn" type="button" id="verifyDone">I've confirmed my e-mail</button>
+    <button class="btn ghost" type="button" id="verifyResend">Send the e-mail again</button>
+    <button class="linkbtn" type="button" id="verifyOut">Use another account</button>
+  </div>
+</section>
+
+<!-- ============ Step 2: set up the authenticator app ============ -->
+<section class="signin" id="enroll" hidden>
+  <div class="signin-card">
+    <div class="logo"><svg><use href="#nsm-logo"/></svg><div><b>NSM</b><small>Messenger</small></div></div>
+    <div>
+      <h1>Turn on security codes</h1>
+      <p>Optional but recommended. Once on, NSM asks for a code from an authenticator app when you sign in on a new device, so nobody can get in with just your password. Install one if you don't have it, for example Google Authenticator or Microsoft Authenticator.</p>
+    </div>
+    <ol class="enroll-steps">
+      <li>In the app, add an account and <b>scan this QR code</b>:
+        <div class="qr" id="qr" aria-label="QR code for your authenticator app"></div>
+        <div class="mail">On this phone? <a id="otpLink" href="#">Open it in your authenticator app</a>, or type this key:</div>
+        <div class="secret"><code id="secretKey">…</code><button class="btn ghost" type="button" id="copyKey">Copy</button></div>
+      </li>
+      <li>Type the 6-digit code the app shows:
+        <input id="enrollCode" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" aria-label="6-digit code from your authenticator app">
+      </li>
+    </ol>
+    <p class="form-msg" id="enrollMsg" hidden></p>
+    <button class="btn" type="button" id="enrollBtn" disabled>Turn on security codes</button>
+    <p class="demo-note">Keep the key above somewhere safe. If you lose your phone, it lets you set up your codes again on a new one.</p>
+    <button class="linkbtn" type="button" id="enrollOut">Not now, back to NSM</button>
+  </div>
+</section>
+
+<!-- ============ Main app ============ -->
+<main class="app" id="app" hidden>
+  <aside class="pane pane-left">
+    <div class="me">
+      <div class="me-top">
+        <div class="logo"><svg><use href="#nsm-logo"/></svg><div><b>NSM</b></div></div>
+        <div style="display:flex; gap:6px">
+          <button class="icon-btn" id="securityBtn" aria-label="Security settings" title="Security">
+            <svg class="i" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          </button>
+          <button class="icon-btn" id="soundBtn" aria-label="Turn sounds off" title="Sounds on">
+            <svg class="i" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+          </button>
+          <button class="icon-btn" id="signoutBtn" aria-label="Sign out" title="Sign out">
+            <svg class="i" viewBox="0 0 24 24"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M10 16l-4-4 4-4"/><path d="M6 12h10"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="me-row">
+        <button class="dp-btn" id="meDpBtn" title="Change display picture" aria-label="Change display picture"></button>
+        <div class="me-info">
+          <div class="me-name">
+            <input class="inline-edit" id="meName" aria-label="Your display name" maxlength="32">
+            <select id="meStatus" aria-label="Your status"></select>
+          </div>
+          <input class="inline-edit" id="mePm" aria-label="Your personal message" maxlength="80" placeholder="Type a personal message">
+          <div class="mail" id="meMail"></div>
+        </div>
+      </div>
+      <div class="music">
+        <label><input type="checkbox" id="musicOn"> ♫ Show what I'm listening to</label>
+        <input type="text" id="musicSong" aria-label="Song you're listening to" placeholder="Artist – Song" maxlength="60">
+      </div>
+    </div>
+    <div class="list-tools">
+      <input id="search" type="search" placeholder="Search contacts" aria-label="Search contacts">
+      <button class="icon-btn" id="addBtn" title="Add a contact" aria-label="Add a contact">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="10" cy="8" r="4"/><path d="M3 20a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg>
+      </button>
+    </div>
+    <div class="sortbar" role="group" aria-label="Sort contacts">
+      Sort by <button data-sort="groups">Groups</button><button data-sort="status">Online / offline</button>
+    </div>
+    <div class="contacts" id="contacts"></div>
+  </aside>
+
+  <section class="pane pane-right" id="chatPane">
+    <div class="tabs" id="tabs" role="tablist" aria-label="Open conversations"></div>
+    <div class="empty" id="empty">
+      <div>
+        <svg width="64" height="64" aria-hidden="true"><use href="#nsm-logo"/></svg>
+        <h2 id="emptyTitle">No conversation open</h2>
+        <p id="emptyText">Click a contact to start a conversation.</p>
+      </div>
+    </div>
+    <div class="convo" id="convo" hidden>
+      <div class="convo-head">
+        <button class="icon-btn back" id="backBtn" aria-label="Back to contacts"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span id="hDp"></span>
+        <div class="h-info"><div class="h-name" id="hName"></div><div class="h-sub" id="hSub"></div></div>
+        <div class="h-actions">
+          <button class="icon-btn" id="inviteBtn" title="Invite someone to this conversation" aria-label="Invite someone to this conversation">
+            <svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 19a6.5 6.5 0 0 1 13 0"/><path d="M19 7v6M16 10h6"/></svg>
+          </button>
+          <button class="icon-btn" id="gameBtn" title="Play tic-tac-toe" aria-label="Play tic-tac-toe">
+            <svg class="i" viewBox="0 0 24 24"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+          </button>
+          <button class="icon-btn" id="sceneBtn" title="Change background" aria-label="Change background">
+            <svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="convo-body">
+        <div class="msg-col">
+          <div class="messages" id="messages" aria-live="polite"></div>
+          <div class="statusline" id="statusline"></div>
+          <div class="composer">
+            <div class="pop" id="pop" hidden></div>
+            <div class="tools" role="toolbar" aria-label="Message tools">
+              <button class="tool" data-pop="font" aria-expanded="false" title="Change font and colour"><svg class="i" viewBox="0 0 24 24"><path d="M4 20 10 4h1l6 16M6.5 14h8"/><path d="M18 20h3"/></svg><span class="tl">Font</span></button>
+              <button class="tool" data-pop="emo" aria-expanded="false" title="Emoticons"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14a4 4 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg><span class="tl">Emoticons</span></button>
+              <button class="tool" data-pop="wink" aria-expanded="false" title="Send a wink (animation)"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.2 5.8L12 16l-4.9 3 1.2-5.8L4 9.3l5.6-.7z"/></svg><span class="tl">Winks</span></button>
+              <button class="tool wizz-btn" id="wizzBtn" title="Send a Wizz: shakes your contact's window"><svg class="i" viewBox="0 0 24 24"><path d="M4 8l2 8M10 5l2 14M16 8l2 8"/></svg><span class="tl">Wizz!</span></button>
+              <button class="tool" id="fileBtn" title="Send a photo"><svg class="i" viewBox="0 0 24 24"><path d="M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.7 17.2a1.7 1.7 0 0 1-2.4-2.4L15 7"/></svg><span class="tl">Send photo</span></button>
+              <button class="tool" id="inkBtn" title="Draw a handwritten message"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg><span class="tl">Handwriting</span></button>
+              <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+            <form class="input-row" id="sendForm">
+              <textarea id="input" rows="1" placeholder="Type a message" aria-label="Message"></textarea>
+              <button class="btn" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
+        <div class="side" id="side"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="menu" id="menu" hidden role="menu"></div>
+<div class="modal-back" id="modalBack" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+
+<script src="vendor/qrcode.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
