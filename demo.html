@@ -316,6 +316,7 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
   .tool.wizz-btn .tl { display: inline; }
 }
 </style>
+<link rel="stylesheet" href="characters.css">
 </head>
 <body>
 
@@ -448,6 +449,7 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
 <div class="menu" id="menu" hidden role="menu"></div>
 <div class="modal-back" id="modalBack" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
 
+<script src="characters.js"></script>
 <script>
 (() => {
   "use strict";
@@ -509,8 +511,11 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
     { id: "hug",      name: "Hug",        e: "🤗", mode: "zoom" },
     { id: "snow",     name: "Snow",       e: "❄️", mode: "fall",  set: ["❄️", "❄️", "☃️"] },
     { id: "angry",    name: "Grrr",       e: "😡", mode: "zoom" },
-    { id: "money",    name: "Rich!",      e: "💸", mode: "fall",  set: ["💸", "💰", "🪙"] }
+    { id: "money",    name: "Rich!",      e: "💸", mode: "fall",  set: ["💸", "💰", "🪙"] },
+    // Animated characters (characters.js)
+    ...(window.NSM_CHARS || []).map(c => ({ id: c.id, name: c.name, e: c.e, mode: "char" }))
   ];
+  const isChar = id => (WINKS.find(w => w.id === id) || {}).mode === "char";
 
   const SCENES = {
     none:   { name: "Plain",   css: "none" },
@@ -844,7 +849,7 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
       toast(c, msg.kind === "wizz" ? "has just sent you a Wizz!" : msg.kind === "wink" ? "sent you a wink" : msg.kind === "file" ? "sent you a file" : msg.text, msg.kind === "wizz");
     }
     if (msg.kind === "wizz") { sfx.wizz(); shake(); }
-    else if (msg.kind === "wink") { sfx.wink(); if (cid === active) playWink(msg.wink); }
+    else if (msg.kind === "wink") { if (cid === active) playWink(msg.wink); if (cid !== active || !isChar(msg.wink)) sfx.wink(); }
     else sfx.message();
     renderContacts(); renderConvo();
     if (!viewing) { const t = document.querySelector(`[data-tab="${cid}"]`); t && t.classList.add("flash"); }
@@ -925,7 +930,8 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
   function sendWink(id) {
     if (!active || !canSend()) return;
     push(active, { kind: "wink", from: "me", wink: id, t: Date.now() });
-    sfx.wink(); playWink(id); renderMessages();
+    if (!isChar(id)) sfx.wink();
+    playWink(id); renderMessages();
     scheduleReply(active, "wink");
   }
   function sendFile(file) {
@@ -969,7 +975,11 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
     layer.className = "wink-layer";
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const add = (cls, e, style) => { const s = document.createElement("span"); s.className = "wp " + cls; s.textContent = e; s.style.cssText = style; layer.appendChild(s); };
-    if (w.mode === "zoom" || reduce) add("zoom", w.e, "");
+    if (w.mode === "char") {
+      window.NSM_renderChar(layer, w.id);
+      if (sound) { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); window.NSM_playTune(ac, w.id); } catch {} }
+    }
+    else if (w.mode === "zoom" || reduce) add("zoom", w.e, "");
     else if (w.mode === "rise" || w.mode === "fall") {
       for (let i = 0; i < 28; i++) add(w.mode, rand(w.set), `left:${Math.random() * 96}%;font-size:${22 + Math.random() * 30}px;--d:${2 + Math.random() * 1.6}s;--delay:${Math.random() * 1.4}s`);
     } else if (w.mode === "burst") {
@@ -979,7 +989,7 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
       }
     } else if (w.mode === "fly") add("fly", w.e, "");
     $("chatPane").appendChild(layer);
-    setTimeout(() => layer.remove(), 4200);
+    setTimeout(() => layer.remove(), w.mode === "char" ? 4700 : 4200);
   }
 
   /* =============== Toasts =============== */
@@ -1009,7 +1019,9 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
       p.innerHTML = `<div class="grid">${PICKER.map(e => `<button type="button" data-emo="${e}" aria-label="Insert ${e}">${e}</button>`).join("")}</div>
         <div class="hint">Shortcuts work too: :) :D ;) :P :( :'( (H) (L) (Y) (N) (K) (F) (coffee) (8) &lt;3</div>`;
     } else if (kind === "wink") {
-      p.innerHTML = `<div class="label">Send a wink</div><div class="wink-grid">${WINKS.map(w => `<button type="button" data-wink="${w.id}"><span>${w.e}</span>${esc(w.name)}</button>`).join("")}</div>`;
+      const btn = w => `<button type="button" data-wink="${w.id}">${w.mode === "char" ? `<span class="ch-thumb">${window.NSM_CHARS.find(c => c.id === w.id).svg}</span>` : `<span>${w.e}</span>`}${esc(w.name)}</button>`;
+      p.innerHTML = `<div class="label">Animated characters</div><div class="wink-grid">${WINKS.filter(w => w.mode === "char").map(btn).join("")}</div>
+        <div class="label">Effects</div><div class="wink-grid">${WINKS.filter(w => w.mode !== "char").map(btn).join("")}</div>`;
     } else if (kind === "font") {
       const f = me.font || {};
       p.innerHTML = `<div class="label">Font</div>

@@ -78,8 +78,11 @@ const WINKS = [
   { id: "hug", name: "Hug", e: "🤗", mode: "zoom" },
   { id: "snow", name: "Snow", e: "❄️", mode: "fall", set: ["❄️", "❄️", "☃️"] },
   { id: "angry", name: "Grrr", e: "😡", mode: "zoom" },
-  { id: "money", name: "Rich!", e: "💸", mode: "fall", set: ["💸", "💰", "🪙"] }
+  { id: "money", name: "Rich!", e: "💸", mode: "fall", set: ["💸", "💰", "🪙"] },
+  // Animated characters (characters.js)
+  ...(window.NSM_CHARS || []).map(c => ({ id: c.id, name: c.name, e: c.e, mode: "char" }))
 ];
+const isChar = id => (WINKS.find(w => w.id === id) || {}).mode === "char";
 const SCENES = {
   none: { name: "Plain", css: "none" },
   dawn: { name: "Sunset", css: "linear-gradient(170deg, rgba(242,165,65,.22), rgba(214,69,69,.10) 55%, rgba(242,165,65,0))" },
@@ -541,7 +544,7 @@ function onIncoming(d, L) {
   if (!openTabs.includes(d.id)) openTabs.push(d.id);
   const viewing = d.id === active && !document.hidden;
   if (L.kind === "wizz") { sfx.wizz(); shake(); }
-  else if (L.kind === "wink") { sfx.wink(); if (d.id === active) playWink(L.wink); }
+  else if (L.kind === "wink") { if (d.id === active) playWink(L.wink); if (d.id !== active || !isChar(L.wink)) sfx.wink(); }
   else if (L.kind === "game") sfx.wink();
   else sfx.message();
   if (!active) openChat(d.id);
@@ -806,7 +809,8 @@ function sendWizz() {
 function sendWink(id) {
   if (!active || !canSend()) return;
   const w = WINKS.find(x => x.id === id);
-  sfx.wink(); playWink(id);
+  if (!isChar(id)) sfx.wink();
+  playWink(id);
   sendMsg(active, { kind: "wink", wink: id }, `sent you a wink: ${w.e} ${w.name}`);
 }
 function shrinkImage(file, max, type, cb) {
@@ -849,7 +853,11 @@ function playWink(id) {
   layer.className = "wink-layer";
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const add = (cls, e, style) => { const s = document.createElement("span"); s.className = "wp " + cls; s.textContent = e; s.style.cssText = style; layer.appendChild(s); };
-  if (w.mode === "zoom" || reduce) add("zoom", w.e, "");
+  if (w.mode === "char") {
+    window.NSM_renderChar(layer, w.id);
+    if (sound) { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); window.NSM_playTune(ac, w.id); } catch {} }
+  }
+  else if (w.mode === "zoom" || reduce) add("zoom", w.e, "");
   else if (w.mode === "rise" || w.mode === "fall") {
     for (let i = 0; i < 28; i++) add(w.mode, rand(w.set), `left:${Math.random() * 96}%;font-size:${22 + Math.random() * 30}px;--d:${2 + Math.random() * 1.6}s;--delay:${Math.random() * 1.4}s`);
   } else if (w.mode === "burst") {
@@ -859,7 +867,7 @@ function playWink(id) {
     }
   } else if (w.mode === "fly") add("fly", w.e, "");
   $("chatPane").appendChild(layer);
-  setTimeout(() => layer.remove(), 4200);
+  setTimeout(() => layer.remove(), w.mode === "char" ? 4700 : 4200);
 }
 
 /* =============== Toasts =============== */
@@ -890,7 +898,9 @@ function openPop(kind) {
     p.innerHTML = `<div class="grid">${PICKER.map(e => `<button type="button" data-emo="${e}" aria-label="Insert ${e}">${e}</button>`).join("")}</div>
       <div class="hint">Shortcuts work too: :) :D ;) :P :( :'( (H) (L) (Y) (N) (K) (F) (coffee) (8) &lt;3</div>`;
   } else if (kind === "wink") {
-    p.innerHTML = `<div class="label">Send a wink</div><div class="wink-grid">${WINKS.map(w => `<button type="button" data-wink="${w.id}"><span>${w.e}</span>${esc(w.name)}</button>`).join("")}</div>`;
+    const btn = w => `<button type="button" data-wink="${w.id}">${w.mode === "char" ? `<span class="ch-thumb">${window.NSM_CHARS.find(c => c.id === w.id).svg}</span>` : `<span>${w.e}</span>`}${esc(w.name)}</button>`;
+    p.innerHTML = `<div class="label">Animated characters</div><div class="wink-grid">${WINKS.filter(w => w.mode === "char").map(btn).join("")}</div>
+      <div class="label">Effects</div><div class="wink-grid">${WINKS.filter(w => w.mode !== "char").map(btn).join("")}</div>`;
   } else if (kind === "font") {
     const f = me.font || {};
     p.innerHTML = `<div class="label">Font</div>

@@ -1,0 +1,109 @@
+/* NSM animated winks (characters from characters.js) */
+.ch-stage {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--panel) 88%, transparent) 0 30%, transparent 65%);
+  animation: ch-fade 4.6s ease forwards;
+}
+@keyframes ch-fade { 0% { opacity: 0; } 8%, 88% { opacity: 1; } 100% { opacity: 0; } }
+.ch { width: min(280px, 64%); height: auto; overflow: visible; }
+.ch * { transform-box: fill-box; }
+.ch-blink { transform-origin: center; animation: ch-blink 3s infinite; }
+@keyframes ch-blink { 0%, 44%, 50%, 100% { transform: scaleY(1); } 47% { transform: scaleY(.1); } }
+.ch-note { animation: ch-note 1.6s ease-in-out infinite; opacity: 0; }
+.ch-note.n2 { animation-delay: .5s; } .ch-note.n3 { animation-delay: 1s; }
+@keyframes ch-note { 0% { opacity: 0; transform: translateY(10px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-34px) rotate(15deg); } }
+
+/* Dancing pig */
+.pig-sway { animation: pig-sway 1.8s ease-in-out infinite alternate; }
+@keyframes pig-sway { from { transform: translateX(-26px); } to { transform: translateX(26px); } }
+.pig-all { transform-origin: 50% 100%; animation: pig-bounce .45s ease-in-out infinite alternate; }
+@keyframes pig-bounce { from { transform: translateY(0) scale(1.03, .97); } to { transform: translateY(-20px) scale(.98, 1.02); } }
+.pig-head { transform-origin: 50% 90%; animation: pig-head .9s ease-in-out infinite alternate; }
+@keyframes pig-head { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+.pig-leg { transform-origin: 50% 0; animation: pig-leg .45s ease-in-out infinite alternate; }
+.pig-l2 { animation-direction: alternate-reverse; }
+@keyframes pig-leg { from { transform: rotate(-28deg); } to { transform: rotate(28deg); } }
+.pig-a1 { transform-origin: 50% 0; animation: pig-a1 .45s ease-in-out infinite alternate; }
+.pig-a2 { transform-origin: 50% 0; animation: pig-a2 .45s ease-in-out infinite alternate; }
+@keyframes pig-a1 { from { transform: rotate(30deg); } to { transform: rotate(150deg); } }
+@keyframes pig-a2 { from { transform: rotate(-30deg); } to { transform: rotate(-150deg); } }
+.pig-tail { transform-origin: 0 50%; animation: pig-tail .5s linear infinite; }
+@keyframes pig-tail { to { transform: rotate(360deg); } }
+
+/* Jumping frog */
+.frog-all { transform-origin: 50% 100%; animation: frog-jump 2.2s ease-in-out infinite alternate; }
+@keyframes frog-jump {
+  0% { transform: translate(-90px, 0) scale(1.1, .9); }
+  15% { transform: translate(-60px, -80px) scale(.94, 1.08); }
+  30% { transform: translate(-30px, 0) scale(1.1, .9); }
+  45% { transform: translate(0, -80px) scale(.94, 1.08); }
+  60% { transform: translate(30px, 0) scale(1.1, .9); }
+  75% { transform: translate(60px, -80px) scale(.94, 1.08); }
+  90%, 100% { transform: translate(90px, 0) scale(1.1, .9); }
+}
+.frog-shadow { transform-origin: center; animation: frog-shadow 2.2s ease-in-out infinite alternate; }
+@keyframes frog-shadow { 0%, 30%, 60%, 90%, 100% { transform: translateX(-90px) scale(1); } 15%, 45%, 75% { transform: scale(.6); } }
+.frog-tongue { transform-origin: 0 50%; transform: rotate(-25deg) scaleX(0); animation: frog-tongue 1.1s ease-in-out infinite; }
+@keyframes frog-tongue { 0%, 70%, 100% { transform: rotate(-25deg) scaleX(0); } 82% { transform: rotate(-25deg) scaleX(1); } }
+
+/* Waving cat */
+.cat-paw { transform-origin: 50% 100%; animation: cat-wave .35s ease-in-out infinite alternate; }
+@keyframes cat-wave { from { transform: rotate(-10deg); } to { transform: rotate(30deg); } }
+.cat-tail { transform-origin: 0% 100%; animation: cat-tail 1s ease-in-out infinite alternate; }
+@keyframes cat-tail { from { transform: rotate(-6deg); } to { transform: rotate(8deg); } }
+.cat-bubble { transform-origin: 20% 100%; animation: cat-bubble 4.6s ease forwards; }
+@keyframes cat-bubble { 0%, 15% { transform: scale(0); } 25% { transform: scale(1.15); } 30%, 100% { transform: scale(1); } }
+
+/* Penguin dance */
+.peng-all { transform-origin: 50% 100%; animation: peng-waddle .5s ease-in-out infinite alternate, peng-slide 2.3s ease-in-out infinite alternate; }
+@keyframes peng-waddle { from { rotate: -9deg; } to { rotate: 9deg; } }
+@keyframes peng-slide { from { translate: -70px 0; } to { translate: 70px 0; } }
+.peng-f1 { transform-origin: 100% 0; animation: peng-f1 .25s ease-in-out infinite alternate; }
+.peng-f2 { transform-origin: 0 0; animation: peng-f2 .25s ease-in-out infinite alternate; }
+@keyframes peng-f1 { from { transform: rotate(0); } to { transform: rotate(35deg); } }
+@keyframes peng-f2 { from { transform: rotate(0); } to { transform: rotate(-35deg); } }
+
+/* Boo ghost */
+.ghost-all { transform-origin: center; animation: ghost-float 4.6s ease-in-out forwards; }
+@keyframes ghost-float {
+  0% { transform: translateY(30px) scale(.5); opacity: 0; }
+  20% { transform: translateY(-10px) scale(.8); opacity: .95; }
+  40% { transform: translateY(10px) scale(.8); }
+  55% { transform: translateY(0) scale(1.35); }
+  75% { transform: translateY(-6px) scale(1.3); }
+  100% { transform: translateY(-40px) scale(1.2); opacity: .9; }
+}
+.ghost-mouth { transform-origin: center; animation: ghost-mouth 4.6s ease forwards; }
+@keyframes ghost-mouth { 0%, 50% { transform: scale(.5); } 58%, 100% { transform: scale(1.3); } }
+.ghost-boo { transform-origin: center; animation: ghost-boo 4.6s ease forwards; opacity: 0; }
+@keyframes ghost-boo { 0%, 52% { opacity: 0; transform: scale(.3); } 60% { opacity: 1; transform: scale(1.3) rotate(-6deg); } 70%, 100% { opacity: 1; transform: scale(1) rotate(-6deg); } }
+
+/* Robot dance */
+.robot-all { transform-origin: 50% 100%; animation: robot-step .6s steps(2) infinite; }
+@keyframes robot-step { 0% { transform: translateX(-20px) rotate(-4deg); } 100% { transform: translateX(20px) rotate(4deg); } }
+.robot-head { transform-origin: 50% 100%; animation: robot-head .3s steps(2) infinite; }
+@keyframes robot-head { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+.robot-arm { transform-origin: 50% 0; }
+.robot-a1 { animation: robot-a1 .6s steps(2) infinite; }
+.robot-a2 { animation: robot-a2 .6s steps(2) infinite; }
+@keyframes robot-a1 { from { transform: rotate(20deg); } to { transform: rotate(160deg); } }
+@keyframes robot-a2 { from { transform: rotate(-160deg); } to { transform: rotate(-20deg); } }
+.robot-leg { transform-origin: 50% 0; animation: robot-leg .3s steps(2) infinite; }
+.robot-l2 { animation-direction: reverse; }
+@keyframes robot-leg { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+.robot-light { animation: robot-light .3s steps(2) infinite; }
+@keyframes robot-light { from { fill: #f2a541; } to { fill: #d64545; } }
+.robot-heart { transform-origin: center; animation: robot-heart .6s ease-in-out infinite; }
+@keyframes robot-heart { 50% { transform: scale(1.3); } }
+
+/* Small preview in the wink picker */
+.wink-grid .ch-thumb { width: 44px; height: 44px; display: block; margin: 0 auto; }
+.wink-grid .ch-thumb .ch { width: 44px; }
+.wink-grid .ch-thumb * { animation-play-state: paused !important; }
+.wink-grid .ch-thumb .ch-note, .wink-grid .ch-thumb .ghost-boo, .wink-grid .ch-thumb .cat-bubble { display: none; }
+.wink-grid button:hover .ch-thumb * { animation-play-state: running !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-stage * { animation-duration: 0s !important; animation-iteration-count: 1 !important; }
+}
+.wink-grid .ch-thumb .ghost-all, .wink-grid .ch-thumb .ghost-mouth { animation: none !important; }
