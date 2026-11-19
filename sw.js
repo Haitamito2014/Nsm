@@ -1,7 +1,7 @@
 // NSM service worker: makes the app installable and lets it open without a connection.
 // Always tries the network first, so people get updates as soon as they're published;
 // falls back to the saved copy when offline.
-const CACHE = "nsm-v1";
+const CACHE = "nsm-v2";
 const SHELL = [
   "./", "index.html", "app.js", "style.css", "characters.js", "characters.css",
   "firebase-config.js", "vendor/qrcode.js", "demo.html", "manifest.webmanifest",

@@ -16,8 +16,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="characters.css">
+<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="characters.css?v=2">
 </head>
 <body>
 
@@ -233,13 +233,13 @@
 <div class="modal-back" id="modalBack" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
 
 <script src="vendor/qrcode.js"></script>
-<script src="characters.js"></script>
+<script src="characters.js?v=2"></script>
 <script>
   // Installable app: register the service worker (offline + "Add to Home Screen").
   if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
   // Android/Chrome: keep the install prompt so NSM can offer an "Install" button.
   addEventListener("beforeinstallprompt", e => { e.preventDefault(); window.nsmInstallPrompt = e; window.dispatchEvent(new Event("nsm-installable")); });
 </script>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=2"></script>
 </body>
 </html>
